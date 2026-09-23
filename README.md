@@ -17,6 +17,7 @@ This can lead to delayed responses and missed opportunities.
 I built an n8n workflow that automates the lead management process.
 
 ### Workflow
+![Real Estate Lead Management Automation Workflow](workflow.png)
 
 Form Submission
 → Google Sheets
