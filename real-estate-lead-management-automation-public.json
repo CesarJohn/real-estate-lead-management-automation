@@ -1,0 +1,360 @@
+{
+  "name": "Real Estate Lead Management Automation — n8n (Portfolio)",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Real Estate Lead Management ",
+        "formDescription": "Interested in one of our properties? Fill out the form below and our sales team will get in touch with you shortly. Please provide accurate information so we can better assist you with your property inquiry.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name:",
+              "placeholder": "John Santos",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email Address:",
+              "placeholder": "customer@example.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone Number:",
+              "fieldType": "number",
+              "placeholder": "09170000000",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Property Interested In:",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "2-Bedroom Condo"
+                  },
+                  {
+                    "option": "3-Bedroom House"
+                  },
+                  {
+                    "option": "Townhouse"
+                  },
+                  {
+                    "option": "Apartment"
+                  },
+                  {
+                    "option": "Other"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Budget:",
+              "fieldType": "number",
+              "placeholder": "300,000",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Message / Inquiry:",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        16,
+        0
+      ],
+      "id": "07f187ab-ed42-41de-bd0a-843f7221d3c0",
+      "name": "On form submission"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Example Real Estate Leads Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json['Full Name:'] }}",
+            "Email Address": "={{ $json['Email Address:'] }}",
+            "Phone Number": "={{ $json['Phone Number:'] }}",
+            "Property Interested In": "={{ $json['Property Interested In:'] }}",
+            "Budget": "={{ $json['Budget:'] }}",
+            "Message / Inquiry": "={{ $json['Message / Inquiry:'] }}",
+            "Submitted At": "={{ $json.submittedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property Interested In",
+              "displayName": "Property Interested In",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message / Inquiry",
+              "displayName": "Message / Inquiry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submitted At",
+              "displayName": "Submitted At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        0
+      ],
+      "id": "5e6beaef-b7f9-40b9-bf24-bd910de933f7",
+      "name": "Append row in sheet"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "portfolio-budget-threshold",
+              "leftValue": "={{ $json[\"Budget:\"] }}",
+              "rightValue": "={{ 3000000 }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        192,
+        -176
+      ],
+      "id": "97800885-ea0c-4fcf-9268-96947a0b7abe",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json[\"Email Address:\"] }}",
+        "subject": "Thank You for Your Property Inquiry",
+        "message": "=<h2>Thank You for Your Inquiry!</h2>\n\n<p>Hi {{ $json[\"Full Name:\"] }},</p>\n\n<p>Thank you for your interest in our property.</p>\n\n<p>We have received your inquiry for:</p>\n\n<p>\n<strong>Property:</strong> {{ $json[\"Property Interested In:\"] }}<br>\n<strong>Budget:</strong> ₱{{ $json[\"Budget:\"] }}\n</p>\n\n<p>One of our sales agents will contact you shortly.</p>\n\n<p>Thank you!</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        160
+      ],
+      "id": "dcb10598-ed9a-489c-b3b2-0b6a8d49d953",
+      "name": "Costumer message inquiry"
+    },
+    {
+      "parameters": {
+        "sendTo": "agent@example.com",
+        "subject": "HIGH PRIORITY PROPERTY LEAD",
+        "message": "=<h2>🔥 High Priority Property Lead</h2>\n\n<p>A high-budget customer has submitted a new property inquiry.</p>\n\n<p>\n<strong>Name:</strong> {{ $('On form submission').item.json['Full Name:'] }}<br>\n<strong>Email:</strong> {{ $('On form submission').item.json['Email Address:'] }} <br>\n<strong>Phone:</strong>{{ $('On form submission').item.json['Phone Number:'] }} <br>\n<strong>Property:</strong> {{ $('On form submission').item.json['Property Interested In:'] }} <br>\n<strong>Budget:</strong> ₱ {{ $('On form submission').item.json['Budget:'] }}\n</p>\n\n<p>\n<strong>Message:</strong><br>\n{{ $('On form submission').item.json['Message / Inquiry:'] }}\n</p>\n\n<p><strong>Action:</strong> Please contact this lead as soon as possible.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        -336
+      ],
+      "id": "59cffff6-68d7-49f2-a882-2774c7cf3476",
+      "name": "Send a message"
+    },
+    {
+      "parameters": {
+        "sendTo": "agent@example.com",
+        "subject": "New Property Inquiry Received",
+        "message": "=<h2>New Property Inquiry</h2>\n\n<p>A new potential customer has submitted a property inquiry.</p>\n\n\n<p><strong>Customer Information</strong></p>\n\n<p>\n<strong>Name:</strong> {{$json[\"Full Name\"]}}<br>\n<strong>Email:</strong> {{$json[\"Email Address\"]}}<br>\n<strong>Phone:</strong> {{$json[\"Phone Number\"]}}\n</p>\n\n<p>\n<strong>Property Interested In:</strong> {{$json[\"Property Interested In\"]}}<br>\n<strong>Budget:</strong> ₱{{$json[\"Budget\"]}}\n</p>\n\n<p>\n<strong>Customer Message:</strong><br>\n{{$json[\"Message / Inquiry\"]}}\n</p>\n\n\n<p>Please contact the customer as soon as possible.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "6777c553-0de1-4205-8b0b-f02f3b458052",
+      "name": "Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "agent@example.com",
+        "subject": "=New Property Lead - {{ $('On form submission').item.json['Full Name:'] }}",
+        "message": "=<h2>New Property Lead</h2>\n\n<p>A customer has submitted a new property inquiry.</p>\n\n<p>\n<strong>Name:</strong>{{ $('On form submission').item.json['Full Name:'] }} <br>\n<strong>Email:</strong>{{ $('On form submission').item.json['Email Address:'] }} <br>\n<strong>Phone:</strong>{{ $('On form submission').item.json['Phone Number:'] }} <br>\n<strong>Property:</strong>{{ $('On form submission').item.json['Property Interested In:'] }} <br>\n<strong>Budget:</strong> ₱{{ $('On form submission').item.json['Budget:'] }}\n</p>\n\n<p>\n<strong>Message:</strong><br>\n{{ $('On form submission').item.json['Message / Inquiry:'] }}\n</p>\n\n<p>Please follow up with the customer.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        -176
+      ],
+      "id": "af8fd956-e6dc-43fc-8a89-261234e89687",
+      "name": "Send a message1"
+    },
+    {
+      "parameters": {
+        "content": "Real Estate Lead Management Automation — n8n",
+        "height": 80,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        16
+      ],
+      "id": "775ecd9e-5d78-4cf5-9f0e-7d627dbb84dd",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Costumer message inquiry",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Costumer message inquiry": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "nodeGroups": [],
+  "id": "real-estate-lead-management-automation-public",
+  "tags": []
+}
